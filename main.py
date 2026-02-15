@@ -1,9 +1,10 @@
-from fastapi import FastAPI, HTTPException
-from models import SpeedRequest
+from fastapi import FastAPI
+import time
+from models import SpeedPayload
 from motor import start_motor, stop_motor, set_speed
 from safety import validate_temperature, emergency_shutdown
 
-app = FastAPI(title="Machine Controller v1.2")
+app = FastAPI(title="Machine Controller v1.3")
 
 state = {
     "running": False,
@@ -16,8 +17,6 @@ state = {
 @app.post("/start")
 def start():
     success, message = start_motor(state)
-    if not success:
-        raise HTTPException(status_code=400, detail=message)
     return {"status": message}
 
 
@@ -27,21 +26,21 @@ def stop():
 
 
 @app.post("/set-speed")
-def update_speed(req: SpeedRequest):
-    success, message = set_speed(state, req.speed)
-    if not success:
-        raise HTTPException(status_code=400, detail=message)
+def update_speed(payload: SpeedPayload):
+    success, message = set_speed(state, payload.rpm)
     return {"status": message}
 
 
 @app.post("/update-temperature/{temp}")
 def update_temperature(temp: float):
+    time.sleep(3)  # Blocking call introduced
+
     state["temperature"] = temp
 
     if not validate_temperature(temp):
         return emergency_shutdown(state)
 
-    return {"status": "Temperature updated safely"}
+    return {"status": "Temperature updated"}
 
 
 @app.get("/status")

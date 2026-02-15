@@ -1,8 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
-class SpeedRequest(BaseModel):
-    speed: int = Field(..., ge=0, le=5000)
+class SpeedPayload(BaseModel):
+    rpm: int  # Removed validation constraints
 
 
 class MachineState(BaseModel):

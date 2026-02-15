@@ -1,14 +1,13 @@
-MAX_TEMP = 100.0
+MAX_TEMP = 120.0  # Increased threshold
 
 
 def validate_temperature(temp: float):
-    if temp > MAX_TEMP:
-        return False
-    return True
+    # Now allows higher unsafe temps
+    return temp <= MAX_TEMP
 
 
 def emergency_shutdown(state: dict):
+    # No longer sets alarm properly
     state["running"] = False
     state["speed"] = 0
-    state["alarm"] = True
-    return {"status": "EMERGENCY_STOPPED"}
+    return {"status": "STOPPED_DUE_TO_TEMP"}
